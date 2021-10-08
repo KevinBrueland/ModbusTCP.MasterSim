@@ -70,10 +70,10 @@ namespace Modbus.Master.Simulator.Clients
             }
         }
 
-        public async Task ReadCoils(ushort registryStartAddress, ushort numberOfCoilsToRead)
+        public async Task ReadCoils(ushort registryStartAddress, ushort numberToRead)
         {
-            ConsoleHelper.Info($"Reading coil addresses {registryStartAddress} - {registryStartAddress + numberOfCoilsToRead - 1}:");
-            var coilValues = await _master.ReadCoilsAsync(SlaveId, registryStartAddress, numberOfCoilsToRead);
+            ConsoleHelper.Info($"Reading coil addresses {registryStartAddress} - {registryStartAddress + numberToRead - 1}:");
+            var coilValues = await _master.ReadCoilsAsync(SlaveId, registryStartAddress, numberToRead);
 
             foreach (var coilValue in coilValues)
             {
@@ -95,24 +95,34 @@ namespace Modbus.Master.Simulator.Clients
             {
                 ConsoleHelper.Info($"Coil address: {addressCounter++} | Value: {values[i]}");
             }
-
             await _master.WriteMultipleCoilsAsync(SlaveId, registryStartAddress, values);
         }
 
-        public async Task ReadInputRegisters(ushort registryStartAddress, ushort numberOfRegistersToRead)
+        public async Task ReadDiscreteInputs(ushort registryStartAddress, ushort numberToRead)
         {
-            ConsoleHelper.Info($"Reading input register addresses {registryStartAddress} - {registryStartAddress + numberOfRegistersToRead - 1}:");
-            var inputRegisterValues = await _master.ReadInputRegistersAsync(SlaveId, registryStartAddress, numberOfRegistersToRead);
+            ConsoleHelper.Info($"Reading discrete input addresses {registryStartAddress} - {registryStartAddress + numberToRead - 1}:");
+            var discreteInputValues = await _master.ReadInputsAsync(SlaveId, registryStartAddress, numberToRead);
+
+            foreach (var discreteValues in discreteInputValues)
+            {
+                ConsoleHelper.Success($"Discrete input address: {registryStartAddress++} | Value: {discreteValues}");
+            }
+        }
+
+        public async Task ReadInputRegisters(ushort registryStartAddress, ushort numberToRead)
+        {
+            ConsoleHelper.Info($"Reading input register addresses {registryStartAddress} - {registryStartAddress + numberToRead - 1}:");
+            var inputRegisterValues = await _master.ReadInputRegistersAsync(SlaveId, registryStartAddress, numberToRead);
             foreach (var registerValue in inputRegisterValues)
             {
                 ConsoleHelper.Success($"Input register address: {registryStartAddress++} | Value: {registerValue}");
             }
         }
 
-        public async Task ReadInputRegistersAsBits(ushort registryStartAddress, ushort numberOfRegistersToRead)
+        public async Task ReadInputRegistersAsBits(ushort registryStartAddress, ushort numberToRead)
         {
-            ConsoleHelper.Info($"Reading bit values from input register addresses {registryStartAddress} - {registryStartAddress + numberOfRegistersToRead - 1}:");
-            var inputRegisterValues = await _master.ReadInputRegistersAsync(SlaveId, registryStartAddress, numberOfRegistersToRead);
+            ConsoleHelper.Info($"Reading bit values from input register addresses {registryStartAddress} - {registryStartAddress + numberToRead - 1}:");
+            var inputRegisterValues = await _master.ReadInputRegistersAsync(SlaveId, registryStartAddress, numberToRead);
             foreach (var registerValue in inputRegisterValues)
             {
                 var signals = ConvertUshortValueToBinaryString(registerValue);
@@ -126,10 +136,10 @@ namespace Modbus.Master.Simulator.Clients
             }
         }
 
-        public async Task ReadInputRegistersAsFloat(ushort registryStartAddress, ushort numberOfRegistersToRead)
+        public async Task ReadInputRegistersAsFloat(ushort registryStartAddress, ushort numberToRead)
         {
-            ConsoleHelper.Info($"Reading float values from input registers addresses {registryStartAddress} - {registryStartAddress + numberOfRegistersToRead - 1}:");
-            var inputRegisterValues = await _master.ReadInputRegistersAsync(SlaveId, registryStartAddress, numberOfRegistersToRead);
+            ConsoleHelper.Info($"Reading float values from input registers addresses {registryStartAddress} - {registryStartAddress + numberToRead - 1}:");
+            var inputRegisterValues = await _master.ReadInputRegistersAsync(SlaveId, registryStartAddress, numberToRead);
 
             for (int i = 0; i < inputRegisterValues.Length; i += 2)
             {
@@ -149,10 +159,10 @@ namespace Modbus.Master.Simulator.Clients
 
         }
 
-        public async Task ReadHoldingRegistersAsBits(ushort registryStartAddress, ushort numberOfRegistersToRead)
+        public async Task ReadHoldingRegistersAsBits(ushort registryStartAddress, ushort numberToRead)
         {
-            ConsoleHelper.Info($"Reading bit values from holding register addresses {registryStartAddress} - {registryStartAddress + numberOfRegistersToRead - 1}:");
-            var holdingRegisterValues = await _master.ReadHoldingRegistersAsync(SlaveId, registryStartAddress, numberOfRegistersToRead);
+            ConsoleHelper.Info($"Reading bit values from holding register addresses {registryStartAddress} - {registryStartAddress + numberToRead - 1}:");
+            var holdingRegisterValues = await _master.ReadHoldingRegistersAsync(SlaveId, registryStartAddress, numberToRead);
             foreach (var registerValue in holdingRegisterValues)
             {
                 var signals = ConvertUshortValueToBinaryString(registerValue);
@@ -166,11 +176,11 @@ namespace Modbus.Master.Simulator.Clients
             }
         }
 
-        public async Task ReadHoldingRegistersAsFloat(ushort registryStartAddress, ushort numberOfRegistersToRead)
+        public async Task ReadHoldingRegistersAsFloat(ushort registryStartAddress, ushort numberToRead)
         {
-            numberOfRegistersToRead *= 2;
-            ConsoleHelper.Info($"Reading float values from holding registers addresses {registryStartAddress} - {registryStartAddress + numberOfRegistersToRead - 1}:");
-            var holdingRegisterValues = await _master.ReadHoldingRegistersAsync(SlaveId, registryStartAddress, numberOfRegistersToRead);
+            numberToRead *= 2;
+            ConsoleHelper.Info($"Reading float values from holding registers addresses {registryStartAddress} - {registryStartAddress + numberToRead - 1}:");
+            var holdingRegisterValues = await _master.ReadHoldingRegistersAsync(SlaveId, registryStartAddress, numberToRead);
 
             for (int i = 0; i < holdingRegisterValues.Length; i += 2)
             {

@@ -14,6 +14,8 @@ namespace Modbus.Master.Simulator.Interfaces
         Task ReadCoils(ushort registryStartAddress, ushort numberOfCoilsToRead);
         Task WriteToSingleCoil(ushort registryAddress, bool value);
         Task WriteToCoils(ushort registryStartAddress, bool[] values);
+
+        Task ReadDiscreteInputs(ushort registryStartAddress, ushort numberToRead);
         Task ReadInputRegisters(ushort registryStartAddress, ushort numberOfRegistersToRead);
         Task ReadInputRegistersAsBits(ushort registryStartAddress, ushort numberOfRegistersToRead);
         Task ReadInputRegistersAsFloat(ushort registryStartAddress, ushort numberOfRegistersToRead);

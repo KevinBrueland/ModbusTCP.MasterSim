@@ -10,6 +10,7 @@ ModbusTCP.MasterSim is a Modbus TCP master simulator built on the NModbus librar
   - [Read range of coils](#read-range-of-coils)
   - [Write to a single coil](#write-to-a-single-coil)
   - [Write to a range of coils](#write-to-a-range-of-coils)
+  - [Read a range of discrete inputs](#read-a-range-of-discrete-inputs)
   - [Read a range of input registers](#read-a-range-of-input-registers)
   - [Read a range of input registers as bits](#read-a-range-of-input-registers-as-bits)
   - [Read a range of input registers as 32-bit floats](#read-a-range-of-input-registers-as-32-bit-floats)
@@ -128,6 +129,29 @@ Writes the **--values** to coil addresses starting at **--startingaddress** and 
 **Example**
 
 WRITE COILS --startaddress 1 --value true,true,false,true
+
+#
+#
+
+
+## Read a range of discrete inputs
+**Command:** 
+
+READ DISCRETE
+
+**Arguments:** 
+
+--startaddress (uint16)
+
+--numbertoread (uint16)
+
+**Description**
+
+Reads **--numbertoread** discrete input values starting from **--startaddress**
+
+**Example**
+
+READ DISCRETE --startaddress 1 --numbertoread 10
 
 #
 #

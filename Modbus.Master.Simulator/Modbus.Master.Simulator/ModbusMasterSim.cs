@@ -99,6 +99,23 @@ namespace Modbus.Master.Simulator
 
                     }
 
+                    //READ DISCRETE INPUTS
+                    if (executiveCommand.Equals("READ DISCRETES"))
+                    {
+                        var registerStartAddress = _inputParser.Parse<ushort>(command, "STARTADDRESS");
+                        var numberToRead = _inputParser.Parse<ushort>(command, "NUMBERTOREAD");
+
+                        if (registerStartAddress.IsValid && numberToRead.IsValid)
+                        {
+                            await _modbusMasterClient.ReadDiscreteInputs(registerStartAddress.Value, numberToRead.Value);
+                        }
+                        else
+                        {
+                            var errors = registerStartAddress.Errors.Concat(numberToRead.Errors);
+                            ConsoleHelper.Error(string.Join(Environment.NewLine, errors));
+                        }
+                    }
+
                     //READ INPUT REGISTERS
                     else if (executiveCommand.Equals("READ INPUTREGS"))
                     {
@@ -310,6 +327,7 @@ namespace Modbus.Master.Simulator
                         ConsoleHelper.Info("READ COILS             --startAddress --numberToRead     || Read range of coils.");
                         ConsoleHelper.Info("WRITE COIL             --address      --value            || Write to a single coil. {true/false}");
                         ConsoleHelper.Info("WRITE COILS            --startAddress --values           || Write to multiple coils. {comma-separated true/false}");
+                        ConsoleHelper.Info("READ DISCRETES          --startAddress --numberToRead     || Read range of discrete inputs.");
                         ConsoleHelper.Info("READ INPUTREGS         --startAddress --numberToRead     || Read range of input registers.");
                         ConsoleHelper.Info("READ INPUTREGSB        --startAddress --numberToRead     || Read range of input registers as bits.");
                         ConsoleHelper.Info("READ INPUTREGSF        --startAddress --numberToRead     || Read range of input registers as 32-bit floats.");
