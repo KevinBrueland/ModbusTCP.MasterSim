@@ -1,10 +1,41 @@
-# ModbusTCP.MasterSim
+## ModbusTCP.MasterSim
 ModbusTCP.MasterSim is a Modbus TCP master simulator built on the NModbus library. It supports all the standard read/write functionality.
 
-# AppSettings.json
+- [Getting started](#getting-started)
+- [AppSettings.json <a name="appsettings"></a>](#appsettingsjson-)
+  - [SlaveIPAddress <a name="slaveipaddress"></a>](#slaveipaddress-)
+  - [SlaveTcpPort <a name="slavetcpport"></a>](#slavetcpport-)
+  - [SlaveId <a name="slaveid"></a>](#slaveid-)
+- [MODBUS Commands](#modbus-commands)
+  - [Read range of coils](#read-range-of-coils)
+  - [Write to a single coil](#write-to-a-single-coil)
+  - [Write to a range of coils](#write-to-a-range-of-coils)
+  - [Read a range of input registers](#read-a-range-of-input-registers)
+  - [Read a range of input registers as bits](#read-a-range-of-input-registers-as-bits)
+  - [Read a range of input registers as 32-bit floats](#read-a-range-of-input-registers-as-32-bit-floats)
+  - [Read a range of holding registers](#read-a-range-of-holding-registers)
+  - [Read a range of holding registers as bits](#read-a-range-of-holding-registers-as-bits)
+  - [Read a range of holding registers as 32-bit floats](#read-a-range-of-holding-registers-as-32-bit-floats)
+  - [Write to a range of holding registers](#write-to-a-range-of-holding-registers)
+- [Client Commands](#client-commands)
+  - [Set/change slave ID](#setchange-slave-id)
+  - [Set/change slave IP-address](#setchange-slave-ip-address)
+  - [Set/change slave TCP port](#setchange-slave-tcp-port)
+
+
+#
+#
+
+
+# Getting started
+
+To get started with the ModbusTCP master simulator, clone the repository and build the project.
+
+
+# AppSettings.json <a name="appsettings"></a>
 The appsettings.json config file has three application settings that needs to be set:
 
-## SlaveIPAddress
+## SlaveIPAddress <a name="slaveipaddress"></a>
 
 The IP-address of the slave you wish to connect to. 
 
@@ -13,7 +44,7 @@ The IP-address of the slave you wish to connect to.
 ---
 ---
 
-## SlaveTcpPort
+## SlaveTcpPort <a name="slavetcpport"></a>
 The TCP port of the slave you wish to connect to. 
 
 **Example:** 502
@@ -21,7 +52,7 @@ The TCP port of the slave you wish to connect to.
 ---
 ---
 
-## SlaveId
+## SlaveId <a name="slaveid"></a>
 
 The slaveId you wish to send commands to.
 
@@ -74,8 +105,12 @@ Writes the **--value** to the **--address**
 **Example**
 
 WRITE COIL --address 1 --value true
+
 #
-### Write to a range of coils
+#
+
+
+## Write to a range of coils
 **Command:** 
 
 WRITE COILS
@@ -189,8 +224,12 @@ Reads **--numbertoread** holding register values starting from **--startaddress*
 **Example**
 
 READ HOLDREGS --startaddress 40001 --numbertoread 5
+
 #
-### Read a range of holding registers as bits
+#
+
+
+## Read a range of holding registers as bits
 **Command:** 
 
 READ HOLDREGSB
