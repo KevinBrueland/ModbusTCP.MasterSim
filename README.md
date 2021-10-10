@@ -137,7 +137,7 @@ WRITE COILS --startaddress 1 --value true,true,false,true
 ## Read a range of discrete inputs
 **Command:** 
 
-READ DISCRETE
+READ DISCRETES
 
 **Arguments:** 
 
@@ -151,7 +151,7 @@ Reads **--numbertoread** discrete input values starting from **--startaddress**
 
 **Example**
 
-READ DISCRETE --startaddress 1 --numbertoread 10
+READ DISCRETES --startaddress 10001 --numbertoread 10
 
 #
 #
