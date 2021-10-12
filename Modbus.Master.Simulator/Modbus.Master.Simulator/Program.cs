@@ -41,7 +41,7 @@ namespace Modbus.Master.Simulator
         {
             var builder = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false);
+                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: false);
 
             return builder.Build();
         }

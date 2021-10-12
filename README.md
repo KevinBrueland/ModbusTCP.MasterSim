@@ -7,7 +7,7 @@ ModbusTCP.MasterSim is a Modbus TCP master simulator built on the NModbus librar
   - [SlaveTcpPort <a name="slavetcpport"></a>](#slavetcpport-)
   - [SlaveId <a name="slaveid"></a>](#slaveid-)
 - [MODBUS Commands](#modbus-commands)
-  - [Read range of coils](#read-range-of-coils)
+  - [Read a range of coils](#read-a-range-of-coils)
   - [Write to a single coil](#write-to-a-single-coil)
   - [Write to a range of coils](#write-to-a-range-of-coils)
   - [Read a range of discrete inputs](#read-a-range-of-discrete-inputs)
@@ -19,6 +19,7 @@ ModbusTCP.MasterSim is a Modbus TCP master simulator built on the NModbus librar
   - [Read a range of holding registers as 32-bit floats](#read-a-range-of-holding-registers-as-32-bit-floats)
   - [Write to a range of holding registers](#write-to-a-range-of-holding-registers)
 - [Client Commands](#client-commands)
+  - [Connect to slave](#connect-to-slave)
   - [Set/change slave ID](#setchange-slave-id)
   - [Set/change slave IP-address](#setchange-slave-ip-address)
   - [Set/change slave TCP port](#setchange-slave-tcp-port)
@@ -34,7 +35,8 @@ To get started with the ModbusTCP master simulator, clone the repository and bui
 
 
 # AppSettings.json <a name="appsettings"></a>
-The appsettings.json config file has three application settings that needs to be set:
+The appsettings.json config file has three application settings can be set in order to autoconnect to a slave.
+If these values arent present in the appsettings.json file, you can still manually connect to a slave with the 'Connect' command.
 
 ## SlaveIPAddress <a name="slaveipaddress"></a>
 
@@ -66,7 +68,7 @@ The slaveId you wish to send commands to.
 # MODBUS Commands
 
 
-## Read range of coils
+## Read a range of coils
 **Command:** 
 
 READ COILS
@@ -340,6 +342,30 @@ WRITE HOLDREGS --startaddress 40001 --values 32.1235,654.2534,99.33452
 
 # Client Commands
 
+## Connect to slave
+**Command:** 
+
+CONNECT
+
+**Arguments:** 
+
+--ipaddress (ip-address in format x.x.x.x)
+
+--port (int)
+
+--slaveid (byte)
+
+**Description**
+Connects to a slave with the provided ip, port and slaveid.
+
+
+**Example**
+
+CONNECT --ipaddress 127.0.0.1 --port 502 --slaveid 1
+
+#
+#
+
 ## Set/change slave ID
 **Command:** 
 
@@ -347,7 +373,7 @@ SET SLAVEID
 
 **Arguments:** 
 
---value (byte)
+--slaveid (byte)
 
 **Description**
 Sets the slave ID the client sends commands to.
@@ -355,7 +381,7 @@ Sets the slave ID the client sends commands to.
 
 **Example**
 
-SET SLAVEID --value 1
+SET SLAVEID --slaveid 1
 
 #
 #
@@ -367,7 +393,7 @@ SET IPADDRESS
 
 **Arguments:** 
 
---value (ip-address in format x.x.x.x)
+--ipaddress (ip-address in format x.x.x.x)
 
 **Description**
 Sets the IP-address of the slave the client connects to.
@@ -376,7 +402,7 @@ This will force any current connection to be closed and will then attempt to rec
 
 **Example**
 
-SET IPADDRESS --value 127.0.0.1
+SET IPADDRESS --ipaddress 127.0.0.1
 
 
 #
@@ -390,7 +416,7 @@ SET PORT
 
 **Arguments:** 
 
---value (int)
+--port (int)
 
 **Description**
 Sets the TCP port of the slave the client connects to.
@@ -399,7 +425,7 @@ This will force any current connection to be closed and will then attempt to rec
 
 **Example**
 
-SET PORT --value 502
+SET PORT --port 502
 
 
 

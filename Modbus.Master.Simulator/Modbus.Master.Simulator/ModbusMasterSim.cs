@@ -23,16 +23,31 @@ namespace Modbus.Master.Simulator
 
         public async Task Run()
         {
-            byte slaveId = _appSettingsProvider.GetSlaveId();
-            IPAddress ipAddress = new IPAddress(_appSettingsProvider.GetIPAddress());
-            var tcpPort = _appSettingsProvider.GetPort();
+            Console.WriteLine();
+
+            try
+            {
+                byte slaveId = _appSettingsProvider.GetSlaveId();
+                IPAddress ipAddress = new IPAddress(_appSettingsProvider.GetIPAddress());
+                var tcpPort = _appSettingsProvider.GetPort();
+
+                ConsoleHelper.Info("Found default connection values:");
+                ConsoleHelper.Info($"IpAddress: {ipAddress}");
+                ConsoleHelper.Info($"TcpPort: {tcpPort}");
+                ConsoleHelper.Info($"SlaveId: {slaveId}");
+
+                if (!_modbusMasterClient.IsConnected)
+                    await _modbusMasterClient.AttemptToConnect(ipAddress, tcpPort, slaveId);
+            }
+            catch (Exception)
+            {
+                ConsoleHelper.Warning($"No default connection values found in appsettings.json. Please manually connect to slave by using the 'Connect' command");
+            }
 
             int exitCode = 0;
             while (exitCode != -1)
             {
-                if (!_modbusMasterClient.IsConnected)
-                    await _modbusMasterClient.AttemptToConnect(ipAddress, tcpPort, slaveId);
-
+                
                 Console.WriteLine();
 
                 Console.WriteLine("Please enter a command. For help, type 'help'");
@@ -229,7 +244,6 @@ namespace Modbus.Master.Simulator
                         var registerAddress = _inputParser.Parse<ushort>(command, "ADDRESS");
                         var inputValue = _inputParser.Parse<ushort>(command, "VALUE");
 
-
                         if (registerAddress.IsValid && inputValue.IsValid)
                         {
                             await _modbusMasterClient.WriteToSingleHoldingRegister(registerAddress.Value, inputValue.Value);
@@ -275,10 +289,32 @@ namespace Modbus.Master.Simulator
 
                     }
 
+                    //CONNECT TO SLAVE
+                    else if (executiveCommand.Equals("CONNECT"))
+                    {
+                        var ipAddressInput = _inputParser.Parse<string>(command, "IPADDRESS");
+                        var tcpPortInput = _inputParser.Parse<int>(command, "PORT");
+                        var slaveIdInput = _inputParser.Parse<byte>(command, "SLAVEID");
+
+                        if (tcpPortInput.IsValid && slaveIdInput.IsValid)
+                        {
+                            if (IPAddress.TryParse(ipAddressInput.Value, out IPAddress ip))
+                                await _modbusMasterClient.AttemptToConnect(ip, tcpPortInput.Value, slaveIdInput.Value);
+                            else
+                                ConsoleHelper.Error($"Unable to parse {ipAddressInput.Value} to type {typeof(IPAddress)}");
+                        }
+                        else
+                        {
+                            var errors = tcpPortInput.Errors.Concat(slaveIdInput.Errors);
+                            ConsoleHelper.Error(string.Join(Environment.NewLine, errors));
+                        }
+                            
+                    }
+
                     //SET SLAVE ID
                     else if (executiveCommand.Equals("SET SLAVEID"))
                     {
-                        var inputValue = _inputParser.Parse<byte>(command, "VALUE");
+                        var inputValue = _inputParser.Parse<byte>(command, "SLAVEID");
                         if (inputValue.IsValid)
                         {
                             ConsoleHelper.Info($"Setting new slave id. Previous value: {_modbusMasterClient.SlaveId} => New value {inputValue.Value}");
@@ -292,7 +328,7 @@ namespace Modbus.Master.Simulator
                     //SET SLAVE IP ADDRESS
                     else if (executiveCommand.Equals("SET IPADDRESS"))
                     {
-                        var ip = _inputParser.Parse<string>(command, "VALUE");
+                        var ip = _inputParser.Parse<string>(command, "IPADDRESS");
                         if (IPAddress.TryParse(ip.Value, out IPAddress address))
                         {
                             ConsoleHelper.Info($"Setting slave IP address. Previous value: {_modbusMasterClient.IPAddress} => New value {address}");
@@ -309,7 +345,7 @@ namespace Modbus.Master.Simulator
                     else if (executiveCommand.Equals("SET PORT"))
                     {
                         //Set slave id
-                        var port = _inputParser.Parse<int>(command, "VALUE");
+                        var port = _inputParser.Parse<int>(command, "PORT");
                         if (port.IsValid)
                         {
                             ConsoleHelper.Info($"Setting slave IP address. Previous value: {_modbusMasterClient.TcpPort} => New value {port.Value}");
@@ -324,22 +360,25 @@ namespace Modbus.Master.Simulator
                     else if (executiveCommand == "HELP")
                     {
                         Console.WriteLine();
-                        ConsoleHelper.Info("READ COILS             --startAddress --numberToRead     || Read range of coils.");
-                        ConsoleHelper.Info("WRITE COIL             --address      --value            || Write to a single coil. {true/false}");
-                        ConsoleHelper.Info("WRITE COILS            --startAddress --values           || Write to multiple coils. {comma-separated true/false}");
-                        ConsoleHelper.Info("READ DISCRETES          --startAddress --numberToRead     || Read range of discrete inputs.");
-                        ConsoleHelper.Info("READ INPUTREGS         --startAddress --numberToRead     || Read range of input registers.");
-                        ConsoleHelper.Info("READ INPUTREGSB        --startAddress --numberToRead     || Read range of input registers as bits.");
-                        ConsoleHelper.Info("READ INPUTREGSF        --startAddress --numberToRead     || Read range of input registers as 32-bit floats.");
-                        ConsoleHelper.Info("READ HOLDREGS          --startAddress --numberToRead     || Read range of holding registers.");
-                        ConsoleHelper.Info("READ HOLDREGSB         --startAddress --numberToRead     || Read range of holding registers as bits.");
-                        ConsoleHelper.Info("READ HOLDREGSF         --startAddress --numberToRead     || Read range of holding registers as 32-bit floats.");
-                        ConsoleHelper.Info("WRITE HOLDREG          --address      --value            || Write to a single holding register. {uint16 OR 32-bit float OR 16 bit binary string (LSB->MSB)}");
-                        ConsoleHelper.Info("WRITE HOLDREGS         --startAddress --values           || Write to multiple holding registers. {comma-separated uint16s OR 32-bit floats OR 16 bit binary strings (LSB->MSB)}");
+                        Console.WriteLine("Modbus Commands:");
+                        ConsoleHelper.Info("READ COILS         --startAddress  --numberToRead             || Read range of coils.");
+                        ConsoleHelper.Info("WRITE COIL         --address       --value                    || Write to a single coil. {true/false}");
+                        ConsoleHelper.Info("WRITE COILS        --startAddress  --values                   || Write to multiple coils. {comma-separated true/false}");
+                        ConsoleHelper.Info("READ DISCRETES     --startAddress  --numberToRead             || Read range of discrete inputs.");
+                        ConsoleHelper.Info("READ INPUTREGS     --startAddress  --numberToRead             || Read range of input registers.");
+                        ConsoleHelper.Info("READ INPUTREGSB    --startAddress  --numberToRead             || Read range of input registers as bits.");
+                        ConsoleHelper.Info("READ INPUTREGSF    --startAddress  --numberToRead             || Read range of input registers as 32-bit floats.");
+                        ConsoleHelper.Info("READ HOLDREGS      --startAddress  --numberToRead             || Read range of holding registers.");
+                        ConsoleHelper.Info("READ HOLDREGSB     --startAddress  --numberToRead             || Read range of holding registers as bits.");
+                        ConsoleHelper.Info("READ HOLDREGSF     --startAddress  --numberToRead             || Read range of holding registers as 32-bit floats.");
+                        ConsoleHelper.Info("WRITE HOLDREG      --address       --value                    || Write to a single holding register. {uint16 OR 32-bit float OR 16 bit binary string (LSB->MSB)}");
+                        ConsoleHelper.Info("WRITE HOLDREGS     --startAddress  --values                   || Write to multiple holding registers. {comma-separated uint16s OR 32-bit floats OR 16 bit binary strings (LSB->MSB)}");
                         Console.WriteLine();
-                        ConsoleHelper.Info("SET SLAVEID            --value                           || Set target slave ID. {1-255}");
-                        ConsoleHelper.Info("SET IPADDRESS          --value                           || Set target slave IP address. Will force a reconnect.");
-                        ConsoleHelper.Info("SET PORT               --value                           || Set target slave TCP port. Will force a reconnect."); ;
+                        Console.WriteLine("Client Commands:");
+                        ConsoleHelper.Info("CONNECT            --ipAddress     --port         --slaveid   || Connect to slave with ip, port and slaveid");
+                        ConsoleHelper.Info("SET SLAVEID        --slaveId                                  || Set target slave ID. {1-255}");
+                        ConsoleHelper.Info("SET IPADDRESS      --ipAddress                                || Set target slave IP address. Will force a reconnect.");
+                        ConsoleHelper.Info("SET PORT           --port                                     || Set target slave TCP port. Will force a reconnect."); ;
 
                     }
                     else if (command == "EXIT")
@@ -356,7 +395,7 @@ namespace Modbus.Master.Simulator
                 {
                     //dirty stuff but works for a use and throw sim
                     if (!_modbusMasterClient.IsConnected)
-                        ConsoleHelper.Error("Lost connection to slave.");
+                        ConsoleHelper.Error("Not connected to a slave. Please connect to a slave by using the 'CONNECT' command.");
                     else
                         ConsoleHelper.Error("Unable to parse command parameters. Try again." + ex.Message);
                 }

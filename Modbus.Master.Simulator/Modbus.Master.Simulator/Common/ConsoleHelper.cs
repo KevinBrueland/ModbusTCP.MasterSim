@@ -19,5 +19,7 @@ namespace Modbus.Master.Simulator.Common
         public static void Error(string text, bool newLine = true) => WriteLine(text, ConsoleColor.Red, newLine);
         public static void Info(string text, bool newLine = true) => WriteLine(text, ConsoleColor.Cyan, newLine);
 
+        public static void Warning(string text, bool newLine = true) => WriteLine(text, ConsoleColor.DarkYellow, newLine);
+
     }
 }
