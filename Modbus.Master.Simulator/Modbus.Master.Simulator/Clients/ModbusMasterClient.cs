@@ -210,16 +210,14 @@ namespace Modbus.Master.Simulator.Clients
         public async Task WriteBitsToHoldingRegisters(ushort registryStartAddress, string[] values)
         {
             var addressCounter = registryStartAddress;
+            var ushortVals = new ushort[values.Length];
+            
             ConsoleHelper.Info($"Writing 16 bit binary values to holding registers:");
             for (int i = 0; i < values.Length; i++)
             {
-                ConsoleHelper.Info($"Register address: {addressCounter++} | Value: {values[i]} ({Convert.ToInt32(values[i], 2)})");
-            }
-
-            var ushortVals = new ushort[values.Length];
-            for (int i = 0; i < values.Length; i++)
-            {
                 ushortVals[i] = ConvertBinaryStringToUshort(values[i]);
+                ConsoleHelper.Info($"Register address: {addressCounter++} | Value: {values[i]} ({ushortVals[i]})");
+                
             }
 
             await _master.WriteMultipleRegistersAsync(SlaveId, registryStartAddress, ushortVals);
@@ -287,7 +285,7 @@ namespace Modbus.Master.Simulator.Clients
             var bitArray = new BitArray(new int[] { registryValue }).Cast<bool>().ToArray();
             var bit = new bool[16];
             Array.Copy(bitArray, 0, bit, 0, 16);
-
+            
             return bit;
         }
 
