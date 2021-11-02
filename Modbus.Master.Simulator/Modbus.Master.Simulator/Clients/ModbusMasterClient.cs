@@ -38,6 +38,9 @@ namespace Modbus.Master.Simulator.Clients
             if (_tcpClient == null)
             {
                 _tcpClient = new TcpClient();
+                _tcpClient.SendTimeout = 5000;
+                _tcpClient.ReceiveTimeout = 5000;
+
                 _master = _factory.CreateMaster(_tcpClient);
             }
 
