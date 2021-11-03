@@ -29,12 +29,11 @@ namespace Modbus.Master.Simulator.Clients
             _tcpClient = new TcpClient();
             _master = _factory.CreateMaster(_tcpClient);
         }
+
         public async Task AttemptToConnect(IPAddress ipAddress, int tcpPort, byte slaveId)
         {
+            Disconnect();
             var retryCount = 1;
-
-            if (_tcpClient != null && _tcpClient.Connected)
-                Disconnect();
 
             if (_tcpClient == null)
             {
@@ -61,21 +60,21 @@ namespace Modbus.Master.Simulator.Clients
                 }
                 catch (Exception)
                 {
-                    ConsoleHelper.Warning($"Unable to establish connection. Trying again in {RetryInterval/1000} seconds");
+                    ConsoleHelper.Warning($"Unable to establish connection. Trying again in {RetryInterval / 1000} seconds");
                     await Task.Delay(RetryInterval);
                     retryCount++;
                 }
             }
 
-            if(retryCount >= MaxRetryCount)
-            ConsoleHelper.Error($"Could not connect to IP address: {ipAddress}:{tcpPort} within the retry attempts.");
+            if (retryCount >= MaxRetryCount)
+                ConsoleHelper.Error($"Could not connect to IP address: {ipAddress}:{tcpPort} within the maximum allowed retry attempts.");
         }
 
         public void Disconnect()
         {
             if (_tcpClient != null)
             {
-                if(_tcpClient.Connected)
+                if (_tcpClient.Connected)
                     ConsoleHelper.Info($"Disconnecting from Ip address: {IPAddress}:{TcpPort}");
 
                 _tcpClient.Close();
@@ -224,13 +223,13 @@ namespace Modbus.Master.Simulator.Clients
         {
             var addressCounter = registryStartAddress;
             var ushortVals = new ushort[values.Length];
-            
+
             ConsoleHelper.Info($"Writing 16 bit binary values to holding registers:");
             for (int i = 0; i < values.Length; i++)
             {
                 ushortVals[i] = ConvertBinaryStringToUshort(values[i]);
                 ConsoleHelper.Info($"Register address: {addressCounter++} | Value: {values[i]} ({ushortVals[i]})");
-                
+
             }
 
             await _master.WriteMultipleRegistersAsync(SlaveId, registryStartAddress, ushortVals);
@@ -298,7 +297,7 @@ namespace Modbus.Master.Simulator.Clients
             var bitArray = new BitArray(new int[] { registryValue }).Cast<bool>().ToArray();
             var bit = new bool[16];
             Array.Copy(bitArray, 0, bit, 0, 16);
-            
+
             return bit;
         }
 

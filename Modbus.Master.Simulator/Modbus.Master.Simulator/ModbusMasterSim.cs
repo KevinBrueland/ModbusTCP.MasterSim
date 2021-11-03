@@ -26,28 +26,21 @@ namespace Modbus.Master.Simulator
         {
             Console.WriteLine();
 
-            try
-            {     
-                IPAddress ipAddress = new IPAddress(_appSettingsProvider.GetIPAddress());
-                var tcpPort = _appSettingsProvider.GetPort();
-                byte slaveId = _appSettingsProvider.GetSlaveId();
-                var retryCount =_modbusMasterClient.MaxRetryCount = _appSettingsProvider.GetMaxRetryCount();
-                var retryInterval = _modbusMasterClient.RetryInterval = _appSettingsProvider.GetRetryInterval();
-
-                ConsoleHelper.Info("Found default connection values:");
-                ConsoleHelper.Info($"IpAddress: {ipAddress}");
-                ConsoleHelper.Info($"TcpPort: {tcpPort}");
-                ConsoleHelper.Info($"SlaveId: {slaveId}");
-                ConsoleHelper.Info($"RetryCount: {retryCount}");
-                ConsoleHelper.Info($"RetryInterval: {retryInterval}");
-
-                if (!_modbusMasterClient.IsConnected)
-                    await _modbusMasterClient.AttemptToConnect(ipAddress, tcpPort, slaveId);
-            }
-            catch (Exception)
-            {
-                ConsoleHelper.Warning($"No default connection values found in appsettings.json. Please manually connect to slave by using the 'Connect' command");
-            }
+            IPAddress ipAddress = new IPAddress(_appSettingsProvider.GetIPAddress());
+            var tcpPort = _appSettingsProvider.GetPort();
+            byte slaveId = _appSettingsProvider.GetSlaveId();
+            var retryCount =_modbusMasterClient.MaxRetryCount = _appSettingsProvider.GetMaxRetryCount();
+            var retryInterval = _modbusMasterClient.RetryInterval = _appSettingsProvider.GetRetryInterval();
+            
+            ConsoleHelper.Info("Found default connection values:");
+            ConsoleHelper.Info($"IpAddress: {ipAddress}");
+            ConsoleHelper.Info($"TcpPort: {tcpPort}");
+            ConsoleHelper.Info($"SlaveId: {slaveId}");
+            ConsoleHelper.Info($"RetryCount: {retryCount}");
+            ConsoleHelper.Info($"RetryInterval: {retryInterval}");
+            
+            if (!_modbusMasterClient.IsConnected)
+                await _modbusMasterClient.AttemptToConnect(ipAddress, tcpPort, slaveId);
 
             int exitCode = 0;
             while (exitCode != -1)
@@ -396,13 +389,22 @@ namespace Modbus.Master.Simulator
                         ConsoleHelper.Error("Unknown command. Type 'HELP' for a list of valid commands.");
                     }
                 }
+                catch (IOException ioEx)
+                {
+                    if (!_modbusMasterClient.IsConnected)
+                    {
+                        ConsoleHelper.Error("Not connected to slave. Attempting to reconnect...");
+                        await _modbusMasterClient.AttemptToConnect(_modbusMasterClient.IPAddress, _modbusMasterClient.TcpPort, _modbusMasterClient.SlaveId);
+                    }
+                    else
+                    {
+                        ConsoleHelper.Error($"Unable to read/write to slave. Make sure target slaveID exists. Current slaveID: {_modbusMasterClient.SlaveId}");
+                    }
+                       
+                }
                 catch (Exception ex)
                 {
-                    //dirty stuff but works for a use and throw sim
-                    if (!_modbusMasterClient.IsConnected)
-                        ConsoleHelper.Error("Not connected to a slave. Please connect to a slave by using the 'CONNECT' command.");
-                    else
-                        ConsoleHelper.Error("Unable to parse command parameters. Try again." + ex.Message);
+                    ConsoleHelper.Error("Unable to parse command parameters. Try again." + ex.Message);
                 }
 
                 Console.WriteLine();
@@ -421,7 +423,6 @@ namespace Modbus.Master.Simulator
 
             return true;
         }
-
 
     }
 }
