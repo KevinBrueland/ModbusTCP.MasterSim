@@ -6,5 +6,8 @@ namespace Modbus.Master.Simulator.Interfaces
         byte[] GetIPAddress();
         int GetPort();
         byte GetSlaveId();
+
+        int GetMaxRetryCount();
+        int GetRetryInterval();
     }
 }

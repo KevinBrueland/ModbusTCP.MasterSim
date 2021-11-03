@@ -5,9 +5,11 @@ namespace Modbus.Master.Simulator.Interfaces
 {
     public interface IModbusMasterClient
     {
-        IPAddress IPAddress { get; set; }
-        int TcpPort { get; set; }
+        IPAddress IPAddress { get; }
+        int TcpPort { get; }
         byte SlaveId { get; set; }
+        int MaxRetryCount { get; set; }
+        int RetryInterval { get; set; }
         bool IsConnected { get; }
         Task AttemptToConnect(IPAddress ipAddress, int tcpPort, byte slaveId);
         void Disconnect();

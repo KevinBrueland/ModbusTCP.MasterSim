@@ -2,6 +2,7 @@
 using Modbus.Master.Simulator.Common;
 using Modbus.Master.Simulator.Interfaces;
 using System;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -26,15 +27,19 @@ namespace Modbus.Master.Simulator
             Console.WriteLine();
 
             try
-            {
-                byte slaveId = _appSettingsProvider.GetSlaveId();
+            {     
                 IPAddress ipAddress = new IPAddress(_appSettingsProvider.GetIPAddress());
                 var tcpPort = _appSettingsProvider.GetPort();
+                byte slaveId = _appSettingsProvider.GetSlaveId();
+                var retryCount =_modbusMasterClient.MaxRetryCount = _appSettingsProvider.GetMaxRetryCount();
+                var retryInterval = _modbusMasterClient.RetryInterval = _appSettingsProvider.GetRetryInterval();
 
                 ConsoleHelper.Info("Found default connection values:");
                 ConsoleHelper.Info($"IpAddress: {ipAddress}");
                 ConsoleHelper.Info($"TcpPort: {tcpPort}");
                 ConsoleHelper.Info($"SlaveId: {slaveId}");
+                ConsoleHelper.Info($"RetryCount: {retryCount}");
+                ConsoleHelper.Info($"RetryInterval: {retryInterval}");
 
                 if (!_modbusMasterClient.IsConnected)
                     await _modbusMasterClient.AttemptToConnect(ipAddress, tcpPort, slaveId);
@@ -115,7 +120,7 @@ namespace Modbus.Master.Simulator
                     }
 
                     //READ DISCRETE INPUTS
-                    if (executiveCommand.Equals("READ DISCRETES"))
+                    else if (executiveCommand.Equals("READ DISCRETES"))
                     {
                         var registerStartAddress = _inputParser.Parse<ushort>(command, "STARTADDRESS");
                         var numberToRead = _inputParser.Parse<ushort>(command, "NUMBERTOREAD");

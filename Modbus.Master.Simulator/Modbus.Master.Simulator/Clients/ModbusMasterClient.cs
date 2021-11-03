@@ -12,9 +12,11 @@ namespace Modbus.Master.Simulator.Clients
 {
     public class ModbusMasterClient : IModbusMasterClient
     {
-        public IPAddress IPAddress { get; set; }
-        public int TcpPort { get; set; }
+        public IPAddress IPAddress { get; private set; }
+        public int TcpPort { get; private set; }
         public byte SlaveId { get; set; }
+        public int MaxRetryCount { get; set; }
+        public int RetryInterval { get; set; }
         public bool IsConnected => _tcpClient.Connected;
 
         private static IModbusMaster _master;
@@ -30,7 +32,6 @@ namespace Modbus.Master.Simulator.Clients
         public async Task AttemptToConnect(IPAddress ipAddress, int tcpPort, byte slaveId)
         {
             var retryCount = 1;
-            var maxRetryCount = 10;
 
             if (_tcpClient != null && _tcpClient.Connected)
                 Disconnect();
@@ -44,13 +45,13 @@ namespace Modbus.Master.Simulator.Clients
                 _master = _factory.CreateMaster(_tcpClient);
             }
 
-            while (!_tcpClient.Connected && retryCount < maxRetryCount)
+            while (!_tcpClient.Connected && retryCount < MaxRetryCount)
             {
                 try
                 {
-                    ConsoleHelper.Info($"Trying to connect to slaveId {slaveId} on IP address: {ipAddress}:{tcpPort} - Connection attempt {retryCount}/{maxRetryCount}");
+                    ConsoleHelper.Info($"Trying to connect to IP address: {ipAddress}:{tcpPort} - Connection attempt {retryCount}/{MaxRetryCount}");
                     await _tcpClient.ConnectAsync(ipAddress, tcpPort);
-                    ConsoleHelper.Success($"Master connected to slaveId {slaveId} on IP address: {ipAddress}:{tcpPort}");
+                    ConsoleHelper.Success($"Master connected to IP address: {ipAddress}:{tcpPort}");
 
                     IPAddress = ipAddress;
                     TcpPort = tcpPort;
@@ -60,21 +61,23 @@ namespace Modbus.Master.Simulator.Clients
                 }
                 catch (Exception)
                 {
-                    ConsoleHelper.Warning($"Unable to establish connection. Trying again in 5 seconds");
-                    await Task.Delay(5000);
+                    ConsoleHelper.Warning($"Unable to establish connection. Trying again in {RetryInterval/1000} seconds");
+                    await Task.Delay(RetryInterval);
                     retryCount++;
                 }
             }
 
-            if(retryCount >= maxRetryCount)
-            ConsoleHelper.Error($"Could not connect to slaveId {slaveId} on IP address: {ipAddress}:{tcpPort} within the retry attempts.");
+            if(retryCount >= MaxRetryCount)
+            ConsoleHelper.Error($"Could not connect to IP address: {ipAddress}:{tcpPort} within the retry attempts.");
         }
 
         public void Disconnect()
         {
-            if (_tcpClient.Connected)
+            if (_tcpClient != null)
             {
-                ConsoleHelper.Info($"Disconnecting from slaveId {SlaveId} on Ip address: {IPAddress}:{TcpPort}");
+                if(_tcpClient.Connected)
+                    ConsoleHelper.Info($"Disconnecting from Ip address: {IPAddress}:{TcpPort}");
+
                 _tcpClient.Close();
                 _tcpClient = null;
             }
