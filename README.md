@@ -39,7 +39,7 @@ To get started with the ModbusTCP master simulator, clone the repository and bui
 
 
 # AppSettings.json <a name="appsettings"></a>
-The appsettings.json config file has three application settings can be set in order to autoconnect to a slave.
+The appsettings.json config file has application settings that can be set in order to autoconnect to a slave.
 If these values arent present in the appsettings.json file, you can still manually connect to a slave with the 'Connect' command.
 
 ## SlaveIPAddress <a name="slaveipaddress"></a>
@@ -70,7 +70,7 @@ The slaveId you wish to send commands to.
 
 ## MaxRetryCount 
 
-Max number of retry accounts when attempting to establish a connection to the slave. Value in ms.
+Max number of retries when attempting to establish a connection to the slave. Value in ms.
 
 **Example:** 5000
 
