@@ -1,4 +1,6 @@
-﻿using System.Net;
+﻿using Modbus.Master.Simulator.Clients;
+using Modbus.Master.Simulator.Types;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace Modbus.Master.Simulator.Interfaces
@@ -8,9 +10,10 @@ namespace Modbus.Master.Simulator.Interfaces
         IPAddress IPAddress { get; }
         int TcpPort { get; }
         byte SlaveId { get; set; }
-        int MaxRetryCount { get; set; }
-        int RetryInterval { get; set; }
+        int MaxRetryCount { get; }
+        int RetryInterval { get; }
         bool IsConnected { get; }
+        Task AttemptToConnect(IPAddress ipAddress, int tcpPort, byte slaveId, ModbusMasterOptions options);
         Task AttemptToConnect(IPAddress ipAddress, int tcpPort, byte slaveId);
         void Disconnect();
         Task ReadCoils(ushort registryStartAddress, ushort numberOfCoilsToRead);

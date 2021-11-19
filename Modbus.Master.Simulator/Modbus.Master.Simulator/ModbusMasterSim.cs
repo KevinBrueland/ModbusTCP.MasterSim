@@ -1,6 +1,7 @@
 ﻿
 using Modbus.Master.Simulator.Common;
 using Modbus.Master.Simulator.Interfaces;
+using Modbus.Master.Simulator.Types;
 using System;
 using System.IO;
 using System.Linq;
@@ -29,18 +30,22 @@ namespace Modbus.Master.Simulator
             IPAddress ipAddress = new IPAddress(_appSettingsProvider.GetIPAddress());
             var tcpPort = _appSettingsProvider.GetPort();
             byte slaveId = _appSettingsProvider.GetSlaveId();
-            var retryCount =_modbusMasterClient.MaxRetryCount = _appSettingsProvider.GetMaxRetryCount();
-            var retryInterval = _modbusMasterClient.RetryInterval = _appSettingsProvider.GetRetryInterval();
-            
-            ConsoleHelper.Info("Found default connection values:");
-            ConsoleHelper.Info($"IpAddress: {ipAddress}");
-            ConsoleHelper.Info($"TcpPort: {tcpPort}");
-            ConsoleHelper.Info($"SlaveId: {slaveId}");
-            ConsoleHelper.Info($"RetryCount: {retryCount}");
-            ConsoleHelper.Info($"RetryInterval: {retryInterval}");
-            
+            var retryCount = _appSettingsProvider.GetMaxRetryCount() ;
+            var retryInterval = _appSettingsProvider.GetRetryInterval();
+            var sendTimeout = _appSettingsProvider.GetSendTimeout();
+            var receiveTimeout = _appSettingsProvider.GetSendTimeout();
+
             if (!_modbusMasterClient.IsConnected)
-                await _modbusMasterClient.AttemptToConnect(ipAddress, tcpPort, slaveId);
+                await _modbusMasterClient.AttemptToConnect(ipAddress,
+                                                           tcpPort,
+                                                           slaveId,
+                                                           new ModbusMasterOptions
+                                                           {
+                                                               MaxRetryCount = retryCount,
+                                                               RetryInterval = retryInterval,
+                                                               SendTimeout = sendTimeout,
+                                                               ReceiveTimeout = receiveTimeout
+                                                           });
 
             int exitCode = 0;
             while (exitCode != -1)

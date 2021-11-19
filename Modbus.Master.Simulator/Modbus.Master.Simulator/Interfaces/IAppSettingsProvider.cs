@@ -9,5 +9,8 @@ namespace Modbus.Master.Simulator.Interfaces
 
         int GetMaxRetryCount();
         int GetRetryInterval();
+
+        int GetSendTimeout();
+        int GetReceiveTimeout();
     }
 }

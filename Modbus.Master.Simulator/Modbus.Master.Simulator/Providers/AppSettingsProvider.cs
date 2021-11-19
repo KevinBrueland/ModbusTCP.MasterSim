@@ -89,5 +89,18 @@ namespace Modbus.Master.Simulator.Providers
             var retryInterval = GetOrDefault<int>("RetryInterval", 5000);
             return retryInterval;
         }
+
+        public int GetSendTimeout()
+        {
+
+            var sendTimeout = GetOrDefault<int>("SendTimeout", 5000);
+            return sendTimeout;
+        }
+
+        public int GetReceiveTimeout()
+        {
+            var receiveTimeout = GetOrDefault<int>("ReceiveTimeout", 5000);
+            return receiveTimeout;
+        }
     }
 }

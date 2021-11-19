@@ -1,5 +1,6 @@
 ﻿using Modbus.Master.Simulator.Common;
 using Modbus.Master.Simulator.Interfaces;
+using Modbus.Master.Simulator.Types;
 using NModbus;
 using System;
 using System.Collections;
@@ -15,9 +16,21 @@ namespace Modbus.Master.Simulator.Clients
         public IPAddress IPAddress { get; private set; }
         public int TcpPort { get; private set; }
         public byte SlaveId { get; set; }
-        public int MaxRetryCount { get; set; }
-        public int RetryInterval { get; set; }
+        public int MaxRetryCount { get; private set; }
+        public int RetryInterval { get; private set; }
+        public int SendTimeout { get; private set; }
+        public int ReceiveTimeout { get; private set; }
         public bool IsConnected => _tcpClient.Connected;
+
+        private ModbusMasterOptions _modbusClientOptions;
+
+        private readonly ModbusMasterOptions defaultOptions = new ModbusMasterOptions
+        {
+            RetryInterval = 5000,
+            MaxRetryCount = 10,
+            SendTimeout = 5000,
+            ReceiveTimeout = 5000
+        };
 
         private static IModbusMaster _master;
         private static TcpClient _tcpClient;
@@ -28,27 +41,52 @@ namespace Modbus.Master.Simulator.Clients
             _factory = new ModbusFactory();
             _tcpClient = new TcpClient();
             _master = _factory.CreateMaster(_tcpClient);
+            _modbusClientOptions = defaultOptions;
+        }
+
+        public ModbusMasterClient(ModbusMasterOptions options)
+        {
+            _factory = new ModbusFactory();
+            _tcpClient = new TcpClient();
+            _master = _factory.CreateMaster(_tcpClient);
+        }
+
+        public async Task AttemptToConnect(IPAddress ipAddress, int tcpPort, byte slaveId, ModbusMasterOptions options)
+        {
+            if (options != null)
+                _modbusClientOptions = options;
+
+            await AttemptToConnect(ipAddress, tcpPort, slaveId);
         }
 
         public async Task AttemptToConnect(IPAddress ipAddress, int tcpPort, byte slaveId)
         {
             Disconnect();
+            ConsoleHelper.Info($"Current connection settings:");
+            ConsoleHelper.Info($"IpAddress: {ipAddress}");
+            ConsoleHelper.Info($"TcpPort: {tcpPort}");
+            ConsoleHelper.Info($"SlaveId: {slaveId}");
+            ConsoleHelper.Info($"RetryCount: {_modbusClientOptions.MaxRetryCount}");
+            ConsoleHelper.Info($"RetryInterval: {_modbusClientOptions.RetryInterval}");
+            ConsoleHelper.Info($"SendTimeout: {_modbusClientOptions.ReceiveTimeout}");
+            ConsoleHelper.Info($"ReceiveTimeout: {_modbusClientOptions.SendTimeout}");
+
             var retryCount = 1;
 
             if (_tcpClient == null)
             {
                 _tcpClient = new TcpClient();
-                _tcpClient.SendTimeout = 5000;
-                _tcpClient.ReceiveTimeout = 5000;
+                _tcpClient.SendTimeout = _modbusClientOptions.SendTimeout;
+                _tcpClient.ReceiveTimeout = _modbusClientOptions.ReceiveTimeout;
 
                 _master = _factory.CreateMaster(_tcpClient);
             }
 
-            while (!_tcpClient.Connected && retryCount < MaxRetryCount)
+            while (!_tcpClient.Connected && retryCount < _modbusClientOptions.MaxRetryCount)
             {
                 try
                 {
-                    ConsoleHelper.Info($"Trying to connect to IP address: {ipAddress}:{tcpPort} - Connection attempt {retryCount}/{MaxRetryCount}");
+                    ConsoleHelper.Info($"Trying to connect to IP address: {ipAddress}:{tcpPort} - Connection attempt {retryCount}/{_modbusClientOptions.MaxRetryCount}");
                     await _tcpClient.ConnectAsync(ipAddress, tcpPort);
                     ConsoleHelper.Success($"Master connected to IP address: {ipAddress}:{tcpPort}");
 
@@ -60,13 +98,13 @@ namespace Modbus.Master.Simulator.Clients
                 }
                 catch (Exception)
                 {
-                    ConsoleHelper.Warning($"Unable to establish connection. Trying again in {RetryInterval / 1000} seconds");
-                    await Task.Delay(RetryInterval);
+                    ConsoleHelper.Warning($"Unable to establish connection. Trying again in {_modbusClientOptions.RetryInterval / 1000} seconds");
+                    await Task.Delay(_modbusClientOptions.RetryInterval);
                     retryCount++;
                 }
             }
 
-            if (retryCount >= MaxRetryCount)
+            if (retryCount >= _modbusClientOptions.MaxRetryCount)
                 ConsoleHelper.Error($"Could not connect to IP address: {ipAddress}:{tcpPort} within the maximum allowed retry attempts.");
         }
 
@@ -166,7 +204,7 @@ namespace Modbus.Master.Simulator.Clients
             var holdingRegisterValues = await _master.ReadHoldingRegistersAsync(SlaveId, registryStartAddress, numberOfRegistersToRead);
             foreach (var registerValue in holdingRegisterValues)
             {
-                ConsoleHelper.Success($"Input register address: {registryStartAddress++} | Value: {registerValue}");
+                ConsoleHelper.Success($"holding register address: {registryStartAddress++} | Value: {registerValue}");
             }
 
         }
