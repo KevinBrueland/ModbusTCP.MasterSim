@@ -2,6 +2,7 @@
 using Modbus.Master.Simulator.Common;
 using Modbus.Master.Simulator.Interfaces;
 using Modbus.Master.Simulator.Types;
+using NModbus;
 using System;
 using System.IO;
 using System.Linq;
@@ -394,6 +395,10 @@ namespace Modbus.Master.Simulator
                         ConsoleHelper.Error("Unknown command. Type 'HELP' for a list of valid commands.");
                     }
                 }
+                catch (SlaveException slaveEx)
+                {
+                    ConsoleHelper.Error(slaveEx.Message);
+                }
                 catch (IOException ioEx)
                 {
                     if (!_modbusMasterClient.IsConnected)
@@ -403,13 +408,14 @@ namespace Modbus.Master.Simulator
                     }
                     else
                     {
-                        ConsoleHelper.Error($"Unable to read/write to slave. Make sure target slaveID exists. Current slaveID: {_modbusMasterClient.SlaveId}");
+                        ConsoleHelper.Error($"Connection to slave timed out.");
                     }
-                       
+
                 }
                 catch (Exception ex)
                 {
-                    ConsoleHelper.Error("Unable to parse command parameters. Try again." + ex.Message);
+                    ConsoleHelper.Error("Something went wrong. Please attempt to reconnect if connection is lost. " + ex.Message);
+                    _modbusMasterClient.Disconnect();
                 }
 
                 Console.WriteLine();
