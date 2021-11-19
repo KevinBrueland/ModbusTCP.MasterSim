@@ -98,7 +98,7 @@ namespace Modbus.Master.Simulator.Clients
                 }
                 catch (Exception)
                 {
-                    ConsoleHelper.Warning($"Unable to establish connection. Trying again in {_modbusClientOptions.RetryInterval / 1000} seconds");
+                    ConsoleHelper.Warning($"Unable to establish connection. Trying again in {_modbusClientOptions.RetryInterval} miliseconds");
                     await Task.Delay(_modbusClientOptions.RetryInterval);
                     retryCount++;
                 }
@@ -122,139 +122,150 @@ namespace Modbus.Master.Simulator.Clients
 
         public async Task ReadCoils(ushort registryStartAddress, ushort numberToRead)
         {
-            ConsoleHelper.Info($"Reading coil addresses {registryStartAddress} - {registryStartAddress + numberToRead - 1}:");
+            ConsoleHelper.Info2($"Reading coil addresses {registryStartAddress} - {registryStartAddress + numberToRead - 1}:");
             var coilValues = await _master.ReadCoilsAsync(SlaveId, registryStartAddress, numberToRead);
 
             foreach (var coilValue in coilValues)
             {
-                ConsoleHelper.Success($"Coil address: {registryStartAddress++} | Value: {coilValue}");
+                ConsoleHelper.Info($"Coil address: {registryStartAddress++} | Value: {coilValue}");
             }
+            ConsoleHelper.Success($"Read complete!");
         }
 
         public async Task WriteToSingleCoil(ushort registryAddress, bool value)
         {
-            ConsoleHelper.Info($"Writing value: {value} to coil address: {registryAddress}");
+            ConsoleHelper.Info2($"Writing value: {value} to coil address {registryAddress}:");
             await _master.WriteSingleCoilAsync(SlaveId, registryAddress, value);
+            ConsoleHelper.Success($"Write complete!");
         }
 
         public async Task WriteToCoils(ushort registryStartAddress, bool[] values)
         {
             var addressCounter = registryStartAddress;
-            ConsoleHelper.Info($"Writing values to coils:");
+            ConsoleHelper.Info2($"Writing values to coils:");
             for (int i = 0; i < values.Length; i++)
             {
                 ConsoleHelper.Info($"Coil address: {addressCounter++} | Value: {values[i]}");
             }
             await _master.WriteMultipleCoilsAsync(SlaveId, registryStartAddress, values);
+            ConsoleHelper.Success($"Write complete!");
         }
 
         public async Task ReadDiscreteInputs(ushort registryStartAddress, ushort numberToRead)
         {
-            ConsoleHelper.Info($"Reading discrete input addresses {registryStartAddress} - {registryStartAddress + numberToRead - 1}:");
+            ConsoleHelper.Info2($"Reading discrete input addresses {registryStartAddress} - {registryStartAddress + numberToRead - 1}:");
             var discreteInputValues = await _master.ReadInputsAsync(SlaveId, registryStartAddress, numberToRead);
 
             foreach (var discreteValues in discreteInputValues)
             {
-                ConsoleHelper.Success($"Discrete input address: {registryStartAddress++} | Value: {discreteValues}");
+                ConsoleHelper.Info($"Discrete input address: {registryStartAddress++} | Value: {discreteValues}");
             }
+            ConsoleHelper.Success($"Read complete!");
         }
 
         public async Task ReadInputRegisters(ushort registryStartAddress, ushort numberToRead)
         {
-            ConsoleHelper.Info($"Reading input register addresses {registryStartAddress} - {registryStartAddress + numberToRead - 1}:");
+            ConsoleHelper.Info2($"Reading input register addresses {registryStartAddress} - {registryStartAddress + numberToRead - 1}:");
             var inputRegisterValues = await _master.ReadInputRegistersAsync(SlaveId, registryStartAddress, numberToRead);
             foreach (var registerValue in inputRegisterValues)
             {
-                ConsoleHelper.Success($"Input register address: {registryStartAddress++} | Value: {registerValue}");
+                ConsoleHelper.Info($"Input register address: {registryStartAddress++} | Value: {registerValue}");
             }
+            ConsoleHelper.Success($"Read complete!");
         }
 
         public async Task ReadInputRegistersAsBits(ushort registryStartAddress, ushort numberToRead)
         {
-            ConsoleHelper.Info($"Reading bit values from input register addresses {registryStartAddress} - {registryStartAddress + numberToRead - 1}:");
+            ConsoleHelper.Info2($"Reading bit values from input register addresses {registryStartAddress} - {registryStartAddress + numberToRead - 1}:");
             var inputRegisterValues = await _master.ReadInputRegistersAsync(SlaveId, registryStartAddress, numberToRead);
             foreach (var registerValue in inputRegisterValues)
             {
                 var signals = ConvertUshortValueToBinaryString(registerValue);
                 ConsoleHelper.Info($"Register address: {registryStartAddress++} | Value: {registerValue}");
-                ConsoleHelper.Info("LSB");
+                ConsoleHelper.Info2("LSB");
                 for (int i = 0; i < signals.Length; i++)
                 {
-                    ConsoleHelper.Success($"Bit{i}: {Convert.ToInt32(signals[i])}");
+                    ConsoleHelper.Info($"Bit{i}: {Convert.ToInt32(signals[i])}");
                 }
-                ConsoleHelper.Info("MSB");
+                ConsoleHelper.Info2("MSB");
             }
+            ConsoleHelper.Success($"Read complete!");
         }
 
         public async Task ReadInputRegistersAsFloat(ushort registryStartAddress, ushort numberToRead)
         {
-            ConsoleHelper.Info($"Reading float values from input registers addresses {registryStartAddress} - {registryStartAddress + numberToRead - 1}:");
+            ConsoleHelper.Info2($"Reading float values from input registers addresses {registryStartAddress} - {registryStartAddress + numberToRead - 1}:");
             var inputRegisterValues = await _master.ReadInputRegistersAsync(SlaveId, registryStartAddress, numberToRead);
 
             for (int i = 0; i < inputRegisterValues.Length; i += 2)
             {
                 var floatValue = ConvertUshortsToFloat(inputRegisterValues[i], inputRegisterValues[i + 1]);
-                ConsoleHelper.Success($"Input register addresses {registryStartAddress++} - {registryStartAddress++} | Value: {floatValue}");
+                ConsoleHelper.Info($"Input register addresses {registryStartAddress++} - {registryStartAddress++} | Value: {floatValue}");
             }
+            ConsoleHelper.Success($"Read complete!");
         }
 
         public async Task ReadHoldingRegisters(ushort registryStartAddress, ushort numberOfRegistersToRead)
         {
-            ConsoleHelper.Info($"Reading holding register addresses {registryStartAddress} - {registryStartAddress + numberOfRegistersToRead - 1}:");
+            ConsoleHelper.Info2($"Reading holding register addresses {registryStartAddress} - {registryStartAddress + numberOfRegistersToRead - 1}:");
             var holdingRegisterValues = await _master.ReadHoldingRegistersAsync(SlaveId, registryStartAddress, numberOfRegistersToRead);
             foreach (var registerValue in holdingRegisterValues)
             {
-                ConsoleHelper.Success($"holding register address: {registryStartAddress++} | Value: {registerValue}");
+                ConsoleHelper.Info($"Holding register address: {registryStartAddress++} | Value: {registerValue}");
             }
-
+            ConsoleHelper.Success($"Read complete!");
         }
 
         public async Task ReadHoldingRegistersAsBits(ushort registryStartAddress, ushort numberToRead)
         {
-            ConsoleHelper.Info($"Reading bit values from holding register addresses {registryStartAddress} - {registryStartAddress + numberToRead - 1}:");
+            ConsoleHelper.Info2($"Reading bit values from holding register addresses {registryStartAddress} - {registryStartAddress + numberToRead - 1}:");
             var holdingRegisterValues = await _master.ReadHoldingRegistersAsync(SlaveId, registryStartAddress, numberToRead);
             foreach (var registerValue in holdingRegisterValues)
             {
                 var signals = ConvertUshortValueToBinaryString(registerValue);
                 ConsoleHelper.Info($"Holding register address: {registryStartAddress++} | Value: {registerValue}");
-                ConsoleHelper.Info("LSB");
+                ConsoleHelper.Info2("LSB");
                 for (int i = 0; i < signals.Length; i++)
                 {
-                    ConsoleHelper.Success($"Bit{i}: {Convert.ToInt32(signals[i])}");
+                    ConsoleHelper.Info($"Bit{i}: {Convert.ToInt32(signals[i])}");
                 }
-                ConsoleHelper.Info("MSB");
+                ConsoleHelper.Info2("MSB");
             }
+            ConsoleHelper.Success($"Read complete!");
         }
 
         public async Task ReadHoldingRegistersAsFloat(ushort registryStartAddress, ushort numberToRead)
         {
             numberToRead *= 2;
-            ConsoleHelper.Info($"Reading float values from holding registers addresses {registryStartAddress} - {registryStartAddress + numberToRead - 1}:");
+            ConsoleHelper.Info2($"Reading float values from holding registers addresses {registryStartAddress} - {registryStartAddress + numberToRead - 1}:");
             var holdingRegisterValues = await _master.ReadHoldingRegistersAsync(SlaveId, registryStartAddress, numberToRead);
 
             for (int i = 0; i < holdingRegisterValues.Length; i += 2)
             {
                 var floatValue = ConvertUshortsToFloat(holdingRegisterValues[i], holdingRegisterValues[i + 1]);
-                ConsoleHelper.Success($"Holding register addresses {registryStartAddress++} - {registryStartAddress++} | Value: {floatValue}");
+                ConsoleHelper.Info($"Holding register addresses {registryStartAddress++} - {registryStartAddress++} | Value: {floatValue}");
             }
+            ConsoleHelper.Success($"Read complete!");
         }
 
         public async Task WriteToSingleHoldingRegister(ushort registryAddress, ushort value)
         {
-            ConsoleHelper.Info($"Writing value: {value} to holding register address: {registryAddress}");
+            ConsoleHelper.Info2($"Writing value: {value} to holding register address {registryAddress}:");
             await _master.WriteSingleRegisterAsync(SlaveId, registryAddress, value);
+            ConsoleHelper.Success($"Write complete!");
         }
 
         public async Task WriteToHoldingRegisters(ushort registryStartAddress, ushort[] values)
         {
             var addressCounter = registryStartAddress;
-            ConsoleHelper.Info($"Writing values to holding registers:");
+            ConsoleHelper.Info2($"Writing values to holding registers:");
             for (int i = 0; i < values.Length; i++)
             {
                 ConsoleHelper.Info($"Register address: {addressCounter++} | Value: {values[i]}");
             }
 
             await _master.WriteMultipleRegistersAsync(SlaveId, registryStartAddress, values);
+            ConsoleHelper.Success($"Write complete!");
         }
 
         public async Task WriteBitsToHoldingRegisters(ushort registryStartAddress, string[] values)
@@ -262,7 +273,7 @@ namespace Modbus.Master.Simulator.Clients
             var addressCounter = registryStartAddress;
             var ushortVals = new ushort[values.Length];
 
-            ConsoleHelper.Info($"Writing 16 bit binary values to holding registers:");
+            ConsoleHelper.Info2($"Writing 16 bit binary values to holding registers:");
             for (int i = 0; i < values.Length; i++)
             {
                 ushortVals[i] = ConvertBinaryStringToUshort(values[i]);
@@ -271,18 +282,20 @@ namespace Modbus.Master.Simulator.Clients
             }
 
             await _master.WriteMultipleRegistersAsync(SlaveId, registryStartAddress, ushortVals);
+            ConsoleHelper.Success($"Write complete!");
         }
 
         public async Task WriteFloatsToHoldingRegisters(ushort registryStartAddress, float[] values)
         {
             var addressCounter = registryStartAddress;
-            ConsoleHelper.Info($"Writing 32-bit float values to holding registers:");
+            ConsoleHelper.Info2($"Writing 32-bit float values to holding registers:");
             for (int i = 0; i < values.Length; i++)
             {
                 ConsoleHelper.Info($"Register address: {addressCounter++}-{addressCounter++} | Value: {values[i]}");
             }
             var registerValues = ConvertFloatsToUshorts(values);
             await _master.WriteMultipleRegistersAsync(SlaveId, registryStartAddress, registerValues);
+            ConsoleHelper.Success($"Write complete!");
         }
 
         private float ConvertUshortsToFloat(ushort first, ushort second)

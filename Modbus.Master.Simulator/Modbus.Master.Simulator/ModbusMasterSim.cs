@@ -60,7 +60,7 @@ namespace Modbus.Master.Simulator
                     var command = Console.ReadLine()?.ToUpper() ?? "";
                     var executiveCommand = command.Split(new string[] { "--" }, StringSplitOptions.None)[0].TrimEnd();
 
-
+                    Console.WriteLine();
                     //READ COILS
                     if (executiveCommand.Equals("READ COILS"))
                     {
