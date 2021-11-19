@@ -6,6 +6,10 @@ ModbusTCP.MasterSim is a Modbus TCP master simulator built on the NModbus librar
   - [SlaveIPAddress <a name="slaveipaddress"></a>](#slaveipaddress-)
   - [SlaveTcpPort <a name="slavetcpport"></a>](#slavetcpport-)
   - [SlaveId <a name="slaveid"></a>](#slaveid-)
+  - [MaxRetryCount](#maxretrycount)
+  - [RetryInterval](#retryinterval)
+  - [SendTimeout](#sendtimeout)
+  - [ReceiveTimeout](#receivetimeout)
 - [MODBUS Commands](#modbus-commands)
   - [Read a range of coils](#read-a-range-of-coils)
   - [Write to a single coil](#write-to-a-single-coil)
@@ -60,6 +64,42 @@ The TCP port of the slave you wish to connect to.
 The slaveId you wish to send commands to.
 
 **Example:** 1
+
+---
+---
+
+## MaxRetryCount 
+
+Max number of retry accounts when attempting to establish a connection to the slave. Value in ms.
+
+**Example:** 5000
+
+---
+---
+
+## RetryInterval 
+
+Time between each retry attempt. Value in ms.
+
+**Example:** 5000
+
+---
+---
+
+## SendTimeout 
+
+Send time before timing out. Value in ms.
+
+**Example:** 5000
+
+---
+---
+
+## ReceiveTimeout 
+
+Receive time before timing out. Value in ms.
+
+**Example:** 5000
 
 ---
 ---
