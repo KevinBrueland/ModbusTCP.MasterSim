@@ -396,6 +396,7 @@ CONNECT
 --slaveid (byte)
 
 **Description**
+
 Connects to a slave with the provided ip, port and slaveid.
 
 
@@ -416,6 +417,7 @@ SET SLAVEID
 --slaveid (byte)
 
 **Description**
+
 Sets the slave ID the client sends commands to.
 
 
@@ -436,6 +438,7 @@ SET IPADDRESS
 --ipaddress (ip-address in format x.x.x.x)
 
 **Description**
+
 Sets the IP-address of the slave the client connects to.
 This will force any current connection to be closed and will then attempt to reconnect to the new IP-address with the existing TCP port.
 
@@ -459,6 +462,7 @@ SET PORT
 --port (int)
 
 **Description**
+
 Sets the TCP port of the slave the client connects to.
 This will force any current connection to be closed and will then attempt to reconnect to the new TCP port with the existing IP-address.
 
