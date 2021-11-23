@@ -24,6 +24,7 @@ ModbusTCP.MasterSim is a Modbus TCP master simulator built on the NModbus librar
   - [Write to a range of holding registers](#write-to-a-range-of-holding-registers)
 - [Client Commands](#client-commands)
   - [Connect to slave](#connect-to-slave)
+  - [Reconnect to slave](#reconnect-to-slave)
   - [Set/change slave ID](#setchange-slave-id)
   - [Set/change slave IP-address](#setchange-slave-ip-address)
   - [Set/change slave TCP port](#setchange-slave-tcp-port)
@@ -403,6 +404,27 @@ Connects to a slave with the provided ip, port and slaveid.
 **Example**
 
 CONNECT --ipaddress 127.0.0.1 --port 502 --slaveid 1
+
+#
+#
+
+## Reconnect to slave
+**Command:** 
+
+RECONNECT
+
+**Arguments:** 
+
+N/A
+
+**Description**
+
+Reconnects to the last connected slave
+
+
+**Example**
+
+RECONNECT
 
 #
 #

@@ -315,6 +315,11 @@ namespace Modbus.Master.Simulator
                             
                     }
 
+                    else if (executiveCommand.Equals("RECONNECT"))
+                    {
+                        await _modbusMasterClient.AttemptToReconnect();
+                    }
+
                     //SET SLAVE ID
                     else if (executiveCommand.Equals("SET SLAVEID"))
                     {
@@ -364,7 +369,7 @@ namespace Modbus.Master.Simulator
                     else if (executiveCommand == "HELP")
                     {
                         Console.WriteLine();
-                        Console.WriteLine("Modbus Commands:");
+                        ConsoleHelper.Info2("Modbus Commands:");
                         ConsoleHelper.Info("READ COILS         --startAddress  --numberToRead             || Read range of coils.");
                         ConsoleHelper.Info("WRITE COIL         --address       --value                    || Write to a single coil. {true/false}");
                         ConsoleHelper.Info("WRITE COILS        --startAddress  --values                   || Write to multiple coils. {comma-separated true/false}");
@@ -378,8 +383,9 @@ namespace Modbus.Master.Simulator
                         ConsoleHelper.Info("WRITE HOLDREG      --address       --value                    || Write to a single holding register. {uint16 OR 32-bit float OR 16 bit binary string (LSB->MSB)}");
                         ConsoleHelper.Info("WRITE HOLDREGS     --startAddress  --values                   || Write to multiple holding registers. {comma-separated uint16s OR 32-bit floats OR 16 bit binary strings (LSB->MSB)}");
                         Console.WriteLine();
-                        Console.WriteLine("Client Commands:");
+                        ConsoleHelper.Info2("Client Commands:");
                         ConsoleHelper.Info("CONNECT            --ipAddress     --port         --slaveid   || Connect to slave with ip, port and slaveid");
+                        ConsoleHelper.Info("RECONNECT                                                     || Reconnect to last connected slave");
                         ConsoleHelper.Info("SET SLAVEID        --slaveId                                  || Set target slave ID. {1-255}");
                         ConsoleHelper.Info("SET IPADDRESS      --ipAddress                                || Set target slave IP address. Will force a reconnect.");
                         ConsoleHelper.Info("SET PORT           --port                                     || Set target slave TCP port. Will force a reconnect."); ;
@@ -395,27 +401,9 @@ namespace Modbus.Master.Simulator
                         ConsoleHelper.Error("Unknown command. Type 'HELP' for a list of valid commands.");
                     }
                 }
-                catch (SlaveException slaveEx)
-                {
-                    ConsoleHelper.Error(slaveEx.Message);
-                }
-                catch (IOException ioEx)
-                {
-                    if (!_modbusMasterClient.IsConnected)
-                    {
-                        ConsoleHelper.Error("Not connected to slave. Attempting to reconnect...");
-                        await _modbusMasterClient.AttemptToConnect(_modbusMasterClient.IPAddress, _modbusMasterClient.TcpPort, _modbusMasterClient.SlaveId);
-                    }
-                    else
-                    {
-                        ConsoleHelper.Error($"Connection to slave timed out.");
-                    }
-
-                }
                 catch (Exception ex)
                 {
-                    ConsoleHelper.Error("Something went wrong. Please attempt to reconnect if connection is lost. " + ex.Message);
-                    _modbusMasterClient.Disconnect();
+                    ConsoleHelper.Error(ex.Message);
                 }
 
                 Console.WriteLine();

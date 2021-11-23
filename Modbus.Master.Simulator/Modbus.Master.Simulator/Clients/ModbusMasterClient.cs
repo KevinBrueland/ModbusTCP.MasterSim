@@ -108,6 +108,11 @@ namespace Modbus.Master.Simulator.Clients
                 ConsoleHelper.Error($"Could not connect to IP address: {ipAddress}:{tcpPort} within the maximum allowed retry attempts.");
         }
 
+        public async Task AttemptToReconnect()
+        {
+            await AttemptToConnect(IPAddress, TcpPort, SlaveId);
+        }
+
         public void Disconnect()
         {
             if (_tcpClient != null)

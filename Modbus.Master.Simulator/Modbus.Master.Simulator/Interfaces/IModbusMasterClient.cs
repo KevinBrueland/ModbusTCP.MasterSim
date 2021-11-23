@@ -15,6 +15,8 @@ namespace Modbus.Master.Simulator.Interfaces
         bool IsConnected { get; }
         Task AttemptToConnect(IPAddress ipAddress, int tcpPort, byte slaveId, ModbusMasterOptions options);
         Task AttemptToConnect(IPAddress ipAddress, int tcpPort, byte slaveId);
+
+        Task AttemptToReconnect();
         void Disconnect();
         Task ReadCoils(ushort registryStartAddress, ushort numberOfCoilsToRead);
         Task WriteToSingleCoil(ushort registryAddress, bool value);
