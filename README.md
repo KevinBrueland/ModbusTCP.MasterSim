@@ -1,5 +1,5 @@
 ## ModbusTCP.MasterSim
-ModbusTCP.MasterSim is a Modbus TCP master simulator built on the NModbus library. It supports all the standard read/write functionality.
+ModbusTCP.MasterSim is a Modbus TCP master simulator built on the NModbus library. It supports all the standard read/write functionality, as well as reading and writing 32-bit floats and 16-bit strings.
 
 - [Getting started](#getting-started)
 - [AppSettings.json <a name="appsettings"></a>](#appsettingsjson-)
