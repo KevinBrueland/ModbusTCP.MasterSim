@@ -357,7 +357,7 @@ namespace Modbus.Master.Simulator
                         var port = _inputParser.Parse<int>(command, "PORT");
                         if (port.IsValid)
                         {
-                            ConsoleHelper.Info($"Setting slave IP address. Previous value: {_modbusMasterClient.TcpPort} => New value {port.Value}");
+                            ConsoleHelper.Info($"Setting slave TCP port. Previous value: {_modbusMasterClient.TcpPort} => New value {port.Value}");
                             _modbusMasterClient.Disconnect();
                             await _modbusMasterClient.AttemptToConnect(_modbusMasterClient.IPAddress, port.Value, _modbusMasterClient.SlaveId);
 

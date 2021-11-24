@@ -71,6 +71,10 @@ namespace Modbus.Master.Simulator.Clients
             ConsoleHelper.Info($"SendTimeout: {_modbusClientOptions.ReceiveTimeout}");
             ConsoleHelper.Info($"ReceiveTimeout: {_modbusClientOptions.SendTimeout}");
 
+            IPAddress = ipAddress;
+            TcpPort = tcpPort;
+            SlaveId = slaveId;
+
             var retryCount = 1;
 
             if (_tcpClient == null)
